@@ -50,13 +50,15 @@ jobs:
 
   security_scan:
     docker:
-      - image: gitguardian/ggshield:latest
+      - image: python:3.9  
     steps:
-    - checkout
-    - run:
-        name: GitGuardian Security Scan
-        command: |
-          ggshield secret scan --token $GITGUARDIAN_TOKEN .
+      - checkout
+      - run:
+          name: Install GitGuardian Shield
+          command: pip install ggshield  
+      - run:
+          name: GitGuardian Security Scan
+          command: ggshield secret scan repo .  
 
 workflows:
   version: 2
