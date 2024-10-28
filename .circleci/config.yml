@@ -49,14 +49,16 @@ jobs:
           destination: test-results
 
   security_scan:
-    docker:
-      - image: gitguardian/ggshield:latest
+    executor: php-executor
     steps:
       - checkout
       - run:
+          name: Install GitGuardian Shield
+          command: pip3 install ggshield
+      - run:
           name: GitGuardian Security Scan
           command: |
-            ggshield scan repo . --token $GITGUARDIAN_TOKEN
+            ggshield secret scan repo . --token $GITGUARDIAN_TOKEN
 
 workflows:
   version: 2
