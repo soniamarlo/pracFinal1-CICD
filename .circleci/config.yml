@@ -57,6 +57,9 @@ jobs:
           name: Install GitGuardian Shield
           command: pip install ggshield  
       - run:
+          name: Authenticate with GitGuardian
+          command: echo $GITGUARDIAN_TOKEN | ggshield auth login
+      - run:
           name: GitGuardian Security Scan
           command: ggshield secret scan repo .
 
