@@ -1,0 +1,58 @@
+version: 2.1
+
+executors:
+  php-executor:
+    docker:
+      - image: circleci/php:8.0-cli  # Imagen de PHP compatible
+    working_directory: ~/repo
+
+jobs:
+  install_dependencies:
+    executor: php-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Composer Dependencies
+          command: |
+            composer install --prefer-dist --no-interaction --no-scripts --no-progress
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - vendor
+
+  run_tests:
+    executor: php-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Run PHPUnit Tests
+          command: |
+            mkdir -p artifacts/test-results
+            ./vendor/bin/phpunit --coverage-text --coverage-clover=artifacts/test-results/coverage.xml
+      - store_artifacts:
+          path: artifacts/test-results
+          destination: test-results
+
+  security_scan:
+    docker:
+      - image: gitguardian/ggshield:latest
+    steps:
+      - checkout
+      - run:
+          name: GitGuardian Security Scan
+          command: |
+            ggshield scan repo . --token $GITGUARDIAN_TOKEN
+
+workflows:
+  version: 2
+  test-and-scan:
+    jobs:
+      - install_dependencies
+      - run_tests:
+          requires:
+            - install_dependencies
+      - security_scan:
+          requires:
+            - run_tests
