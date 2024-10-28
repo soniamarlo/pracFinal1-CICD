@@ -3,8 +3,12 @@ version: 2.1
 executors:
   php-executor:
     docker:
-      - image: circleci/php:8.0-cli  # Imagen de PHP compatible
+      - image: circleci/php:8.0-cli
     working_directory: ~/repo
+    environment:
+      APP_ENV: testing
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ":memory:"
 
 jobs:
   install_dependencies:
@@ -26,6 +30,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/repo
+      - run:
+          name: Set Up Application Key
+          command: php artisan key:generate
+      - run:
+          name: Run Database Migrations
+          command: php artisan migrate --env=testing --database=sqlite
       - run:
           name: Run PHPUnit Tests
           command: |
