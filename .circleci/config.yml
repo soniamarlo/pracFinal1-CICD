@@ -35,6 +35,11 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
+          name: Install and Enable Xdebug
+          command: |
+            sudo apt-get update && sudo apt-get install -y php-xdebug
+            echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/xdebug.ini
+      - run:
           name: Copy .env File
           command: cp .env.example .env
       - run:
@@ -48,7 +53,7 @@ jobs:
           name: Run PHPUnit Tests with Coverage
           command: |
             mkdir -p ~/repo/artifacts/test-results
-            XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
+            php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
       - run:
           name: Verify Coverage File
           command: |
@@ -65,9 +70,6 @@ jobs:
       - run:
           name: Verify Artifacts Directory
           command: ls -la ~/repo/artifacts/test-results
-      - run:
-          name: Verify Docs Directory
-          command: ls -la ~/repo/docs || echo "Docs directory does not exist"
       - store_artifacts:
           name: Upload Test Results
           path: ~/repo/artifacts/test-results
@@ -76,7 +78,6 @@ jobs:
           name: Upload Release Package
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
-
 
 workflows:
   test-and-scan:
