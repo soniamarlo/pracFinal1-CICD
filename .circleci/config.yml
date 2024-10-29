@@ -19,10 +19,18 @@ jobs:
     executor: php-executor
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - composer-v1-{{ checksum "composer.lock" }}
+            - composer-v1-
       - run:
           name: Install Composer Dependencies
           command: |
             composer install --prefer-dist --no-interaction --no-scripts --no-progress
+      - save_cache:
+          key: composer-v1-{{ checksum "composer.lock" }}
+          paths:
+            - vendor
       - persist_to_workspace:
           root: ~/repo
           paths:
@@ -34,6 +42,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/repo
+      - run:
+          name: Install Xdebug
+          command: sudo apt-get install -y php-xdebug
       - run:
           name: Copy .env File
           command: cp .env.example .env
@@ -48,13 +59,15 @@ jobs:
           name: Run PHPUnit Tests with Coverage
           command: |
             mkdir -p ~/repo/artifacts/test-results
-            ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
+            XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
       - run:
           name: Verify Artifacts Directory
           command: ls -la ~/repo/artifacts/test-results
       - store_artifacts:
           path: ~/repo/artifacts/test-results
           destination: test-results
+      - store_test_results:
+          path: ~/repo/artifacts/test-results
 
 workflows:
   test-and-scan:
