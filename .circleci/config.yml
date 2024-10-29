@@ -61,7 +61,7 @@ jobs:
           command: mkdir -p ~/.gitguardian
       - run:
           name: Create GitGuardian API Key Config
-          command: 'echo "{\"api_key\": \"${GITGUARDIAN_TOKEN}\"}" > ~/.gitguardian/config.json'
+          command: 'echo "{\"api_key\": \"${GITGUARDIAN_TOKEN}\"}" > ~/.gitguardian/config'
       - run:
           name: GitGuardian Security Scan
           command: ggshield secret scan repo .
