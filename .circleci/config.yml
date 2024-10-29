@@ -25,8 +25,7 @@ jobs:
             - composer-v1-
       - run:
           name: Install Composer Dependencies
-          command: |
-            composer install --prefer-dist --no-interaction --no-scripts --no-progress
+          command: composer install --prefer-dist --no-interaction --no-scripts --no-progress
       - save_cache:
           key: composer-v1-{{ checksum "composer.lock" }}
           paths:
@@ -43,10 +42,6 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
-          name: Enable Xdebug
-          command: |
-            sudo docker-php-ext-enable xdebug
-      - run:
           name: Copy .env File
           command: cp .env.example .env
       - run:
@@ -62,13 +57,17 @@ jobs:
             mkdir -p ~/repo/artifacts/test-results
             XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
       - run:
-          name: Verify Artifacts Directory
-          command: ls -la ~/repo/artifacts/test-results
+          name: Pack Application
+          command: composer archive --format=zip --dir=artifacts --file=release
       - store_artifacts:
           path: ~/repo/artifacts/test-results
           destination: test-results
-      - store_test_results:
-          path: ~/repo/artifacts/test-results
+      - store_artifacts:
+          path: ~/repo/artifacts/release.zip
+          destination: package/release.zip
+      - store_artifacts:
+          path: ~/repo/docs
+          destination: docs
 
 workflows:
   test-and-scan:
