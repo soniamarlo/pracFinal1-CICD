@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   ggshield: gitguardian/ggshield@volatile
+  sonarcloud: sonarsource/sonarcloud@2.0.0
 
 executors:
   php-executor:
@@ -42,6 +43,7 @@ jobs:
       - run:
           name: Run Database Migrations
           command: php artisan migrate --env=testing --database=sqlite
+      - sonarcloud/scan
       - run:
           name: Run PHPUnit Tests
           command: |
@@ -50,6 +52,7 @@ jobs:
       - store_artifacts:
           path: artifacts/test-results
           destination: test-results
+      
 
 workflows:
   test-and-scan:
@@ -58,6 +61,7 @@ workflows:
       - run_tests:
           requires:
             - install_dependencies
+          context: SonarCloud
       - ggshield/scan:
           name: security_scan
           base_revision: << pipeline.git.base_revision >>
