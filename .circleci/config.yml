@@ -80,6 +80,8 @@ jobs:
           name: Upload Release Package
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
+      - store_test_results:
+          path: ~/repo/artifacts/test-results
 
 workflows:
   test-and-scan:
