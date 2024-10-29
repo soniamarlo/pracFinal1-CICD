@@ -19,17 +19,10 @@ jobs:
     executor: php-executor
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - composer-v1-{{ checksum "composer.lock" }}
-            - composer-v1-
       - run:
           name: Install Composer Dependencies
-          command: composer install --prefer-dist --no-interaction --no-scripts --no-progress
-      - save_cache:
-          key: composer-v1-{{ checksum "composer.lock" }}
-          paths:
-            - vendor
+          command: |
+            composer install --prefer-dist --no-interaction --no-scripts --no-progress
       - persist_to_workspace:
           root: ~/repo
           paths:
@@ -58,14 +51,24 @@ jobs:
             XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
       - run:
           name: Pack Application
-          command: composer archive --format=zip --dir=artifacts --file=release
+          command: |
+            composer archive --format=zip --dir=artifacts --file=release
+      - run:
+          name: Verify Artifacts Directory
+          command: ls -la ~/repo/artifacts/test-results
+      - run:
+          name: Verify Docs Directory
+          command: ls -la ~/repo/docs || echo "Docs directory does not exist"
       - store_artifacts:
+          name: Upload Test Results
           path: ~/repo/artifacts/test-results
           destination: test-results
       - store_artifacts:
+          name: Upload Release Package
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
       - store_artifacts:
+          name: Upload Docs
           path: ~/repo/docs
           destination: docs
 
