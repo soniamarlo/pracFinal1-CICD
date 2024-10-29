@@ -50,6 +50,15 @@ jobs:
             mkdir -p ~/repo/artifacts/test-results
             XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
       - run:
+          name: Verify Coverage File
+          command: |
+            if [ -f ~/repo/artifacts/test-results/coverage.xml ]; then
+              echo "Coverage file found."
+            else
+              echo "Coverage file not found."
+              ls -la ~/repo/artifacts/test-results
+            fi
+      - run:
           name: Pack Application
           command: |
             composer archive --format=zip --dir=artifacts --file=release
@@ -67,10 +76,7 @@ jobs:
           name: Upload Release Package
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
-      - store_artifacts:
-          name: Upload Docs
-          path: ~/repo/docs
-          destination: docs
+
 
 workflows:
   test-and-scan:
