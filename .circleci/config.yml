@@ -52,7 +52,6 @@ jobs:
           destination: test-results
 
 workflows:
-  version: 2
   test-and-scan:
     jobs:
       - install_dependencies
@@ -61,5 +60,7 @@ workflows:
             - install_dependencies
       - ggshield/scan:
           name: security_scan
+          base_revision: << pipeline.git.base_revision >>
+          revision: << pipeline.git.revision >>
           requires:
             - run_tests
