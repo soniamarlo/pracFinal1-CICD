@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  ggshield: gitguardian/ggshield
+
 executors:
   php-executor:
     docker:
@@ -48,22 +51,6 @@ jobs:
           path: artifacts/test-results
           destination: test-results
 
-  security_scan:
-    docker:
-      - image: python:3.9 
-    steps:
-      - checkout
-      - run:
-          name: Install GitGuardian Shield
-          command: pip install ggshield 
-      - run:
-          name: Authenticate with GitGuardian
-          command: |
-            echo "$GITGUARDIAN_API_KEY" | ggshield auth login --method=token
-      - run:
-          name: GitGuardian Security Scan
-          command: ggshield secret scan repo .
-
 workflows:
   version: 2
   test-and-scan:
@@ -72,6 +59,7 @@ workflows:
       - run_tests:
           requires:
             - install_dependencies
-      - security_scan:
+      - ggshield/scan:
+          name: security_scan
           requires:
             - run_tests
