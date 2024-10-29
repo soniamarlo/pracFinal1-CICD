@@ -69,19 +69,14 @@ jobs:
           name: Pack Application
           command: |
             composer archive --format=zip --dir=artifacts --file=release
-      - run:
-          name: Verify Artifacts Directory
-          command: ls -la ~/repo/artifacts/test-results
       - store_artifacts:
-          name: Upload Test Results
-          path: ~/repo/artifacts/test-results
-          destination: test-results
+          name: Upload Coverage Report
+          path: ~/repo/artifacts/test-results/coverage.xml
+          destination: coverage
       - store_artifacts:
           name: Upload Release Package
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
-      - store_test_results:
-          path: ~/repo/artifacts/test-results
 
 workflows:
   test-and-scan:
