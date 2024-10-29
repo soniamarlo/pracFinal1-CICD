@@ -35,11 +35,6 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
-          name: Ensure Directory Permissions
-          command: |
-            mkdir -p ~/repo/artifacts/test-results
-            chmod -R 777 ~/repo/artifacts/test-results
-      - run:
           name: Install and Enable Xdebug
           command: |
             sudo pecl install xdebug
@@ -60,7 +55,7 @@ jobs:
           name: Run PHPUnit Tests with Coverage
           command: |
             mkdir -p ~/repo/artifacts/test-results
-            php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=~/repo/artifacts/test-results/coverage.xml
+            php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover ~/repo/artifacts/test-results/coverage.xml
       - run:
           name: Verify Coverage File
           command: |
@@ -77,10 +72,6 @@ jobs:
       - run:
           name: Verify Artifacts Directory
           command: ls -la ~/repo/artifacts/test-results
-      - run:
-          name: Verify Coverage File Permissions
-          command: |
-            ls -la ~/repo/artifacts/test-results
       - store_artifacts:
           name: Upload Test Results
           path: ~/repo/artifacts/test-results
