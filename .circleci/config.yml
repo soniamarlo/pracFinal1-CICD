@@ -50,18 +50,17 @@ jobs:
 
   security_scan:
     docker:
-      - image: python:3.9
+      - image: python:3.9  
     steps:
       - checkout
       - run:
           name: Install GitGuardian Shield
-          command: pip install ggshield
+          command: pip install ggshield  
       - run:
-          name: Create GitGuardian Configuration Directory
-          command: mkdir -p ~/.gitguardian
-      - run:
-          name: Create GitGuardian API Key Config
-          command: 'echo "{\"api_key\": \"${GITGUARDIAN_TOKEN}\"}" > ~/.gitguardian/config'
+          name: Create GitGuardian Configuration File
+          command: |
+            mkdir -p ~/.gitguardian
+            echo "{\"api_key\": \"$GITGUARDIAN_TOKEN\"}" > ~/.gitguardian/config
       - run:
           name: GitGuardian Security Scan
           command: ggshield secret scan repo .
