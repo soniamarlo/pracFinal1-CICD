@@ -43,8 +43,9 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
-          name: Install Xdebug
-          command: sudo apt-get install -y php-xdebug
+          name: Enable Xdebug
+          command: |
+            sudo docker-php-ext-enable xdebug
       - run:
           name: Copy .env File
           command: cp .env.example .env
