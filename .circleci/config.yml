@@ -52,7 +52,21 @@ jobs:
       - store_artifacts:
           path: artifacts/test-results
           destination: test-results
-      
+          
+  build_artifacts:
+    executor: php-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Generate Application Archive
+          command: |
+            mkdir -p artifacts/package
+            tar -czvf artifacts/package/release.tgz .
+      - store_artifacts:
+          path: artifacts/package/release.tgz
+          destination: package/release.tgz
 
 workflows:
   test-and-scan:
@@ -68,3 +82,10 @@ workflows:
           revision: << pipeline.git.revision >>
           requires:
             - run_tests
+      - build_artifacts:
+          requires:
+            - run_tests
+          filters:
+            branches:
+              only:
+                - main
