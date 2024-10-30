@@ -1,0 +1,101 @@
+version: 2.1
+
+orbs:
+  ggshield: gitguardian/ggshield@volatile
+  sonarcloud: sonarsource/sonarcloud@2.0.0
+
+executors:
+  php-executor:
+    docker:
+      - image: circleci/php:8.0-cli
+    working_directory: ~/repo
+    environment:
+      APP_ENV: testing
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ":memory:"
+
+jobs:
+  install_dependencies:
+    executor: php-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Composer Dependencies
+          command: |
+            composer install --prefer-dist --no-interaction --no-scripts --no-progress
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - vendor
+
+  run_tests:
+    executor: php-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Install and Enable Xdebug
+          command: |
+            sudo pecl install xdebug
+            XDEBUG_INI_FILE=$(php -r "echo PHP_CONFIG_FILE_SCAN_DIR;")/docker-php-ext-xdebug.ini
+            echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" | sudo tee $XDEBUG_INI_FILE
+            echo "xdebug.mode=coverage" | sudo tee -a $XDEBUG_INI_FILE
+      - run:
+          name: Copy .env File
+          command: cp .env.example .env
+      - run:
+          name: Set Up Application Key
+          command: php artisan key:generate
+      - run:
+          name: Run Database Migrations
+          command: php artisan migrate --env=testing --database=sqlite
+      - sonarcloud/scan
+      - run:
+          name: Run PHPUnit Tests with Coverage
+          command: |
+            mkdir -p ~/repo/artifacts/test-results
+            php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover ~/repo/artifacts/test-results/coverage.xml
+     
+
+  create_artifact:
+    executor: php-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Pack Application
+          command: |
+            composer archive --format=zip --dir=artifacts --file=release
+      - store_artifacts:
+          name: Upload Release Package
+          path: ~/repo/artifacts/release.zip
+          destination: package/release.zip
+      - store_artifacts:
+          name: Upload Test Results
+          path: ~/repo/artifacts/test-results
+          destination: test-results
+      - store_test_results:
+          path: ~/repo/artifacts/test-results
+
+workflows:
+  test-and-deploy:
+    jobs:
+      - install_dependencies
+      - run_tests:
+          requires:
+            - install_dependencies
+          context: SonarCloud
+      - create_artifact:
+          requires:
+            - run_tests
+          filters:
+            branches:
+              only: main
+      - ggshield/scan:
+          name: security_scan
+          base_revision: << pipeline.git.base_revision >>
+          revision: << pipeline.git.revision >>
+          requires:
+            - run_tests
