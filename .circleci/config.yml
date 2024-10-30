@@ -56,7 +56,10 @@ jobs:
           command: |
             mkdir -p ~/repo/artifacts/test-results
             php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover ~/repo/artifacts/test-results/coverage.xml
-     
+      - persist_to_workspace:
+          root: ~/repo/artifacts/test-results
+          paths:
+            - coverage.xml
 
   create_artifact:
     executor: php-executor
@@ -68,6 +71,8 @@ jobs:
           name: Pack Application
           command: |
             composer archive --format=zip --dir=artifacts --file=release
+      - attach_workspace:
+          at: ~/repo/artifacts/test-results
       - store_artifacts:
           name: Upload Release Package
           path: ~/repo/artifacts/release.zip
