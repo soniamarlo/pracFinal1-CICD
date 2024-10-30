@@ -56,8 +56,7 @@ jobs:
           command: |
             mkdir -p ~/repo/artifacts/test-results
             php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover ~/repo/artifacts/test-results/coverage.xml
-      - store_test_results:
-          path: ~/repo/artifacts/test-results
+     
 
   create_artifact:
     executor: php-executor
@@ -73,6 +72,12 @@ jobs:
           name: Upload Release Package
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
+      - store_artifacts:
+          name: Upload Test Results
+          path: ~/repo/artifacts/test-results
+          destination: test-results
+      - store_test_results:
+          path: ~/repo/artifacts/test-results
 
 workflows:
   test-and-deploy:
