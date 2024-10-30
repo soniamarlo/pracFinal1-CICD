@@ -56,36 +56,38 @@ jobs:
           command: |
             mkdir -p ~/repo/artifacts/test-results
             php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover ~/repo/artifacts/test-results/coverage.xml
-      - run:
-          name: Verify Coverage File
-          command: |
-            if [ -f ~/repo/artifacts/test-results/coverage.xml ]; then
-              echo "Coverage file found."
-            else
-              echo "Coverage file not found."
-              ls -la ~/repo/artifacts/test-results
-            fi
+      - store_test_results:
+          path: ~/repo/artifacts/test-results
+
+  create_artifact:
+    executor: php-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/repo
       - run:
           name: Pack Application
           command: |
             composer archive --format=zip --dir=artifacts --file=release
-      - store_artifacts:
-          name: Upload Coverage Report
-          path: ~/repo/artifacts/test-results/coverage.xml
-          destination: coverage
       - store_artifacts:
           name: Upload Release Package
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
 
 workflows:
-  test-and-scan:
+  test-and-deploy:
     jobs:
       - install_dependencies
       - run_tests:
           requires:
             - install_dependencies
           context: SonarCloud
+      - create_artifact:
+          requires:
+            - run_tests
+          filters:
+            branches:
+              only: main
       - ggshield/scan:
           name: security_scan
           base_revision: << pipeline.git.base_revision >>
