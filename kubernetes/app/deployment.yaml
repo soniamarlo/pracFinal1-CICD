@@ -15,8 +15,8 @@ spec:
         app: laravel-app
     spec:
       containers:
-        - name: fpm-server
-          image: laravel-in-kubernetes/fpm_server
+        - name: laravel-app
+          image: php:8.0-alpine
           ports:
             - containerPort: 80
           envFrom:
