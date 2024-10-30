@@ -73,11 +73,9 @@ jobs:
           path: ~/repo/artifacts/release.zip
           destination: package/release.zip
       - store_artifacts:
-          name: Upload Test Results
-          path: ~/repo/artifacts/test-results
-          destination: test-results
-      - store_test_results:
-          path: ~/repo/artifacts/test-results
+          name: Upload Coverage Report
+          path: ~/repo/artifacts/test-results/coverage.xml
+          destination: coverage
 
 workflows:
   test-and-deploy:
