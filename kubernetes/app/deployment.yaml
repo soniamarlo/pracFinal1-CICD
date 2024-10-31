@@ -16,11 +16,15 @@ spec:
     spec:
       containers:
         - name: laravel-app
-          image: php:8.0-alpine
+          image: nginx:latest
           ports:
             - containerPort: 80
-          envFrom:
-            - secretRef:
-                name: laravel-secret 
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: html
+          emptyDir: {}
+
 
 
