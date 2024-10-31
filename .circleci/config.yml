@@ -93,9 +93,9 @@ jobs:
             RESPONSE=$(curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
               -H "Content-Type: application/json" \
               -d '{
-                "tag_name": "v1.0.0",
+                "tag_name": \"$NEW_TAG\",
                 "target_commitish": "main",
-                "name": "v1.0.0",
+                "name": \"$NEW_TAG\",
                 "body": "Release description",
                 "draft": false,
                 "prerelease": false
