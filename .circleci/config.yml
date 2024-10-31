@@ -84,7 +84,7 @@ jobs:
       - run:
           name: Create GitHub Release
           command: |
-            export RELEASE_URL=$(curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+            RESPONSE=$(curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
               -H "Content-Type: application/json" \
               -d '{
                 "tag_name": "v1.0.0",
@@ -93,8 +93,9 @@ jobs:
                 "body": "Release description",
                 "draft": false,
                 "prerelease": false
-              }' \
-              https://api.github.com/repos/soniamarlo/pracFinal1-CICD/releases | jq -r .upload_url | sed -e "s/{?name,label}/?name=release.zip/")
+              }' https://api.github.com/repos/soniamarlo/pracFinal1-CICD/releases)
+            RELEASE_URL=$(echo "$RESPONSE" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
+            echo "export RELEASE_URL=${RELEASE_URL}" >> $BASH_ENV
       - run:
           name: Upload Artifact to GitHub Release
           command: |
