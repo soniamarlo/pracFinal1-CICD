@@ -94,8 +94,10 @@ jobs:
                 "draft": false,
                 "prerelease": false
               }' https://api.github.com/repos/soniamarlo/pracFinal1-CICD/releases)
-            RELEASE_URL=$(echo "$RESPONSE" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
+            echo "GitHub API response: $RESPONSE"  # Para depurar
+            RELEASE_URL=$(echo "$RESPONSE" | jq -r '.upload_url' | sed -e "s/{?name,label}/?name=release.zip/")
             echo "export RELEASE_URL=${RELEASE_URL}" >> $BASH_ENV
+
       - run:
           name: Upload Artifact to GitHub Release
           command: |
