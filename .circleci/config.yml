@@ -82,12 +82,26 @@ jobs:
           path: ~/repo/artifacts/test-results/coverage.xml
           destination: coverage
       - run:
-          name: Upload Release to GitHub
+          name: Create GitHub Release
+          command: |
+            export RELEASE_URL=$(curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "tag_name": "v1.0.0",
+                "target_commitish": "main",
+                "name": "v1.0.0",
+                "body": "Release description",
+                "draft": false,
+                "prerelease": false
+              }' \
+              https://api.github.com/repos/soniamarlo/pracFinal1-CICD/releases | jq -r .upload_url | sed -e "s/{?name,label}/?name=release.zip/")
+      - run:
+          name: Upload Artifact to GitHub Release
           command: |
             curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
               -H "Content-Type: application/zip" \
-              --data-binary @~/repo/artifacts/release.zip \
-              "https://uploads.github.com/repos/soniamarlo/pracFinal1-CICD/releases/latest/assets?name=release.zip"
+              --data-binary @/home/circleci/repo/artifacts/release.zip \
+              "${RELEASE_URL}"
 
 workflows:
   test-and-deploy:
