@@ -83,7 +83,7 @@ jobs:
           destination: coverage
       
       - run:
-          name: Increment Version Tag
+          name: Increment Version Tag Automatically
           command: |
             LAST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
             NEW_TAG=$(echo $LAST_TAG | awk -F. -v OFS=. '{$NF += 1 ; print}')
