@@ -81,15 +81,22 @@ jobs:
           name: Upload Coverage Report
           path: ~/repo/artifacts/test-results/coverage.xml
           destination: coverage
+      
+      - run:
+          name: Increment Version Tag
+          command: |
+            LAST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+            NEW_TAG=$(echo $LAST_TAG | awk -F. -v OFS=. '{$NF += 1 ; print}')
+            echo "export NEW_TAG=${NEW_TAG}" >> $BASH_ENV
       - run:
           name: Create GitHub Release
           command: |
             RESPONSE=$(curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
               -H "Content-Type: application/json" \
               -d '{
-                "tag_name": "v1.0.0",
+                "tag_name": \"$NEW_TAG\",
                 "target_commitish": "main",
-                "name": "v1.0.0",
+                "name": \"$NEW_TAG\",
                 "body": "Release description",
                 "draft": false,
                 "prerelease": false
