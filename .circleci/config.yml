@@ -94,14 +94,15 @@ jobs:
             RESPONSE=$(curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
               -H "Content-Type: application/json" \
               -d '{
-                "tag_name": \"$NEW_TAG\",
+                "tag_name": "'"$NEW_TAG"'",
                 "target_commitish": "main",
-                "name": \"$NEW_TAG\",
+                "name": "'"$NEW_TAG"'",
                 "body": "Release description",
                 "draft": false,
                 "prerelease": false
-              }' https://api.github.com/repos/soniamarlo/pracFinal1-CICD/releases)
-            echo "GitHub API response: $RESPONSE"  # Para depurar
+              }' \
+              https://api.github.com/repos/soniamarlo/pracFinal1-CICD/releases)
+            echo "GitHub API response: $RESPONSE" # Para depurar
             RELEASE_URL=$(echo "$RESPONSE" | jq -r '.upload_url' | sed -e "s/{?name,label}/?name=release.zip/")
             echo "export RELEASE_URL=${RELEASE_URL}" >> $BASH_ENV
 
