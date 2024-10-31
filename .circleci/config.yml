@@ -81,6 +81,13 @@ jobs:
           name: Upload Coverage Report
           path: ~/repo/artifacts/test-results/coverage.xml
           destination: coverage
+      - run:
+          name: Upload Release to GitHub
+          command: |
+            curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/zip" \
+              --data-binary @~/repo/artifacts/release.zip \
+              "https://uploads.github.com/repos/soniamarlo/pracFinal1-CICD/releases/latest/assets?name=release.zip"
 
 workflows:
   test-and-deploy:
