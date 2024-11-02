@@ -1,30 +1,30 @@
-# Laravel In Kubernetes app
+# CI/CD Pipeline for Laravel Kubernetes Example App
 
-This app is the core project used and built 
-with the [Laravel In Kubernetes Series](https://chris-vermeulen.com/tag/laravel-in-kubernetes/).
+Este repositorio contiene un pipeline de CI/CD configurado con CircleCI para la aplicación Laravel tomada del repositorio [laravel-kubernetes-example-app](https://github.com/chris-cmsoft/laravel-kubernetes-example-app.git).
 
-The project is built and productionized, specifically for running in Kubernetes.
+## Descripción
 
-## What's different
+La finalidad de este proyecto es implementar un pipeline de integración y despliegue continuo (CI/CD) para la aplicación de ejemplo en Laravel que se despliega en un clúster de Kubernetes. El pipeline realiza las siguientes tareas:
 
-This application is pretty much stock standard Laravel with Auth built in, 
-with the possibility of adding a few endpoints for specific things like Health Checks.
+- Instalación de dependencias
+- Ejecución de pruebas
+- Análisis de cobertura de código
+- Generación y publicación de artefactos
+- Escaneo de seguridad con herramientas como SonarCloud y GitGuardian
+- Despliegue en Kubernetes usando ArgoCD
 
-Laravel ships with [Laravel Sail](https://laravel.com/docs/8.x/sail) which has a Docker image, 
-and a docker compose setup specialised for local development.
+## Créditos
 
-The blog series, and application, are built with some ideas in mind which are different to the default Sail setup,
-such as Alpine images, different image builds for different purposes (Nginx, FPM, CLI etc.), and a couple nice changes.
+Todos los derechos de la aplicación Laravel pertenecen a [Chris](https://github.com/chris-cmsoft), autor del repositorio original. Este proyecto únicamente adapta su aplicación para propósitos educativos en un entorno de CI/CD.
 
-## Getting running
+## Requisitos
 
-If you'd like to run the project locally, you can simply run `docker-compose up -d`, 
-and the app will be exposed on port 8080.
+Para ejecutar este pipeline, asegúrate de tener configurado lo siguiente:
 
-## Docker specifics
+- Cuenta en CircleCI
+- Token de autenticación para GitHub (para publicar artefactos)
+- Configuración de ArgoCD para despliegues automáticos en Kubernetes
 
-There are multiple ways to build the different images, but this repo uses a multi stage build, 
-with different stages for each of the different pieces.
+## Licencia
 
-The reason for doing it this way is to install all dependencies in one stage, 
-and copy in the code base into specific stages, which are specialised for their specific use like FPM, CLI or Nginx.
+Este proyecto no modifica la aplicación original y solo realiza configuraciones sobre el pipeline CI/CD para fines educativos. La propiedad intelectual de la aplicación original es de [Chris](https://github.com/chris-cmsoft).
